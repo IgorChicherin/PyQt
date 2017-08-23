@@ -89,7 +89,7 @@ class Enterpise:
         elif value_type == 'phone':
             if type(value) != int:
                 raise Exception('Телефон должен содержать только цифры')
-            if len(str(value)) < 11 or len(str(value)) > 11:
+            if len(str(value)) != 11:
                 raise Exception('Телефон должен содержать 11 цифр')
         return True
 
