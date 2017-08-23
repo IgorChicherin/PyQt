@@ -66,7 +66,8 @@ class Enterpise:
     def _check(self, value, value_type):
         '''
         Callback check correctness input
-        :param value:
+        :param value: str , int
+        :param value_type: str
         :return: boolean, exception
         '''
         if not value and value_type != 'email':
