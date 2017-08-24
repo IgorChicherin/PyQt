@@ -11,6 +11,13 @@ class Enterpise:
         if self._check(phone_number, 'phone') is True:
             self._phone_number = phone_number
 
+    def __str__(self):
+        return 'Название организации: %s \n' \
+               'Адрес: %s \n' \
+               'ИНН: %s \n' \
+               'email: %s \n' \
+               'Телефон: %s' % (self.name, self.adress, self.INN, self.email, self.phone_number)
+
     @property
     def name(self):
         return self._name
@@ -55,13 +62,6 @@ class Enterpise:
     def phone_number(self, value):
         if self._check(value, 'phone') is True:
             self._phone_number = value
-
-    def __str__(self):
-        return 'Название организации: %s \n' \
-               'Адрес: %s \n' \
-               'ИНН: %s \n' \
-               'email: %s \n' \
-               'Телефон: %s' % (self.name, self.adress, self.INN, self.email, self.phone_number)
 
     def _check(self, value, value_type):
         '''

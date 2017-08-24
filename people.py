@@ -11,6 +11,13 @@ class People:
         if self._check(phone_number, 'phone') is True:
             self._phone_number = phone_number
 
+    def __str__(self):
+        return 'Фамилия: %s \n' \
+               'Имя: %s \n' \
+               'Отчество: %s \n' \
+               'Год рождения: %s \n' \
+               'Телефон: %s' % (self.surname, self.name, self.patronymic, self.birthday, self.phone_number)
+
     @property
     def name(self):
         return self._name
@@ -56,13 +63,6 @@ class People:
         if self._check(value, 'phone') is True:
             self._phone_number = value
 
-    def __str__(self):
-        return 'Фамилия: %s \n' \
-               'Имя: %s \n' \
-               'Отчество: %s \n' \
-               'Год рождения: %s \n' \
-               'Телефон: %s' % (self.surname, self.name, self.patronymic, self.birthday, self.phone_number)
-
     def _check(self, value, value_type):
         '''
         Callback check correctness input
@@ -84,6 +84,7 @@ class People:
             if len(str(value)) != 11:
                 raise Exception('Телефон должен содержать 11 цифр')
         return True
+
 
 if __name__ == '__main__':
     emp = People('Пертр', 'Петрович', 'Петров', '31.08.1989', 89284453641)
