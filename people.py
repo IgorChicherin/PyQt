@@ -1,14 +1,14 @@
 class People:
     def __init__(self, name, patronymic, surname, birthday, phone_number):
-        if self._check(name, 'name') is True:
+        if self.__check(name, 'name'):
             self._name = name
-        if self._check(patronymic, 'patronymic') is True:
+        if self.__check(patronymic, 'patronymic'):
             self._patronymic = patronymic
-        if self._check(surname, 'surname') is True:
+        if self.__check(surname, 'surname'):
             self._surname = surname
-        if self._check(birthday, 'birthday') is True:
+        if self.__check(birthday, 'birthday'):
             self._birthday = birthday
-        if self._check(phone_number, 'phone') is True:
+        if self.__check(phone_number, 'phone'):
             self._phone_number = phone_number
 
     def __str__(self):
@@ -24,7 +24,7 @@ class People:
 
     @name.setter
     def name(self, value):
-        if self._check(value, 'name') is True:
+        if self.__check(value, 'name'):
             self._name = value
 
     @property
@@ -33,7 +33,7 @@ class People:
 
     @patronymic.setter
     def patronymic(self, value):
-        if self._check(value, 'patronymic') is True:
+        if self.__check(value, 'patronymic'):
             self._patronymic = value
 
     @property
@@ -42,7 +42,7 @@ class People:
 
     @surname.setter
     def surname(self, value):
-        if self._check(value, 'surname'):
+        if self.__check(value, 'surname'):
             self._surname = value
 
     @property
@@ -51,7 +51,7 @@ class People:
 
     @surname.setter
     def surname(self, value):
-        if self._check(value, 'birthday') is True:
+        if self.__check(value, 'birthday'):
             self._birthday = value
 
     @property
@@ -60,10 +60,10 @@ class People:
 
     @phone_number.setter
     def phone_number(self, value):
-        if self._check(value, 'phone') is True:
+        if self.__check(value, 'phone'):
             self._phone_number = value
 
-    def _check(self, value, value_type):
+    def __check(self, value, value_type):
         '''
         Callback check correctness input
         :param value: str , int
@@ -87,5 +87,5 @@ class People:
 
 
 if __name__ == '__main__':
-    emp = People('Пертр', 'Петрович', 'Петров', '31.08.1989', 89284453641)
+    emp = People('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641)
     print(emp)

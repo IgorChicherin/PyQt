@@ -1,14 +1,14 @@
 class Enterpise:
     def __init__(self, name, adress, inn, email, phone_number):
-        if self._check(name, 'name') is True:
+        if self._check(name, 'name'):
             self._name = name
-        if self._check(adress, 'adress') is True:
+        if self._check(adress, 'adress'):
             self._adress = adress
-        if self._check(inn, 'inn') is True:
+        if self._check(inn, 'inn'):
             self._inn = inn
-        if self._check(email, 'email') is True:
+        if self._check(email, 'email'):
             self._email = email
-        if self._check(phone_number, 'phone') is True:
+        if self._check(phone_number, 'phone'):
             self._phone_number = phone_number
 
     def __str__(self):
@@ -24,7 +24,7 @@ class Enterpise:
 
     @name.setter
     def name(self, value):
-        if self._check(value, 'name') is True:
+        if self._check(value, 'name'):
             self._name = value
 
     @property
@@ -33,7 +33,7 @@ class Enterpise:
 
     @adress.setter
     def adress(self, value):
-        if self._check(value, 'adress') is True:
+        if self._check(value, 'adress'):
             self._adress = value
 
     @property
@@ -42,7 +42,7 @@ class Enterpise:
 
     @INN.setter
     def INN(self, value):
-        if self._check(value, 'inn') is True:
+        if self._check(value, 'inn'):
             self._inn = value
 
     @property
@@ -51,7 +51,7 @@ class Enterpise:
 
     @email.setter
     def email(self, value):
-        if self._check(value, 'email') is True:
+        if self._check(value, 'email'):
             self._email = value
 
     @property
@@ -60,7 +60,7 @@ class Enterpise:
 
     @phone_number.setter
     def phone_number(self, value):
-        if self._check(value, 'phone') is True:
+        if self._check(value, 'phone'):
             self._phone_number = value
 
     def _check(self, value, value_type):
