@@ -94,4 +94,6 @@ class Enterpise:
         return True
 
 
-
+if __name__ == '__main__':
+    ark = Enterpise('ARK Group', 'some address', 12345678912, 'some@email', 89281546474)
+    print(ark)
