@@ -84,8 +84,3 @@ class People:
             if len(str(value)) != 11:
                 raise Exception('Телефон должен содержать 11 цифр')
         return True
-
-
-if __name__ == '__main__':
-    emp = People('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641)
-    print(emp)
