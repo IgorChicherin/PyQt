@@ -1,5 +1,13 @@
+import json
+import os
+
+from employees import Employees
+
+
 class Enterpise:
-    def __init__(self, name, adress, inn, email, phone_number):
+    def __init__(self, org_id, name, adress, inn, email, phone_number):
+        if self._check(org_id, 'id'):
+            self._org_id = org_id
         if self._check(name, 'name'):
             self._name = name
         if self._check(adress, 'adress'):
@@ -17,6 +25,12 @@ class Enterpise:
                'ИНН: %s \n' \
                'email: %s \n' \
                'Телефон: %s' % (self.name, self.adress, self.INN, self.email, self.phone_number)
+
+    @property
+    def org_id(self):
+        return self._org_id
+
+    # TODO Сделать сеттер для org_id
 
     @property
     def name(self):
@@ -58,6 +72,7 @@ class Enterpise:
     def phone_number(self):
         return self._phone_number
 
+
     @phone_number.setter
     def phone_number(self, value):
         if self._check(value, 'phone'):
@@ -72,13 +87,15 @@ class Enterpise:
         '''
         if not value and value_type != 'email':
             raise Exception('Параметр не может быть пустым')
-        if value_type == 'name':
-            if type(value) != str:
-                raise Exception('Имя должно быть строкой')
-        elif value_type == 'adress':
-            if type(value) != str:
-                raise Exception('Адрес должен быть строкой')
+        if value_type == 'id' and type(value) != int:
+            raise Exception('ID должен быть числом')
+        elif value_type == 'name' and type(value) != str:
+            raise Exception('Имя должно быть строкой')
+        elif value_type == 'adress' and type(value) != str:
+            raise Exception('Адрес должен быть строкой')
         elif value_type == 'inn':
+            if type(value) != int:
+                raise Exception('ИНН должен быть числом')
             if len(str(value)) != 11:
                 raise Exception('ИНН должен содержать 11 цифр')
         elif value_type == 'email':
@@ -93,7 +110,42 @@ class Enterpise:
                 raise Exception('Телефон должен содержать 11 цифр')
         return True
 
+    def write(self):
+        data = list()
+        if os.path.exists('enterprises.json'):
+            with open('enterprises.json', 'r', encoding='utf-8') as file:
+                for item in file:
+                    data.append(json.loads(item))
+            with open('enterprises.json', 'a', encoding='utf-8') as file:
+                if data:
+                    ids = [item['id'] for item in data]
+                    if self._org_id not in ids:
+                        file.write(
+                            json.dumps(
+                                {
+                                    'id': self._org_id, 'name': self._name, 'adress': self.adress, 'inn': self._inn,
+                                    'email': self._email, 'phone': self._phone_number
+                                },
+                                ensure_ascii=True) + "\n"
+                            )
+                    else:
+                        raise Exception('Такой ID уже существует')
+                else:
+                    with open('enterprises.json', 'a', encoding='utf-8') as file:
+                        data.append(
+                            {
+                                'id': self._org_id, 'name': self._name, 'adress': self.adress, 'inn': self._inn,
+                                'email': self._email, 'phone': self._phone_number
+                            }
+                        )
+                        for item in data:
+                            file.write(json.dumps(item, ensure_ascii=True) + "\n")
+
+    # TODO сделать добавление сотрудника
+    def add_employee(self, *args):
+        pass
+
 
 if __name__ == '__main__':
-    ark = Enterpise('ARK Group', 'some address', 12345678912, 'some@email', 89281546474)
-    print(ark)
+    ark = Enterpise(11, 'ARK Group', 'some address', 12345678912, 'some@email', 89281546474)
+    ark.write()
