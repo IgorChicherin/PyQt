@@ -1,3 +1,6 @@
+import json
+import os
+
 from people import People
 
 
@@ -65,7 +68,39 @@ class Employees(People):
             raise Exception('Параметр должен быть числом')
         return True
 
+    def save(self):
+        data = list()
+        if os.path.exists('employees.json'):
+            with open('employees.json', 'r', encoding='utf-8') as file:
+                for item in file:
+                    data.append(json.loads(item))
+            with open('employees.json', 'a', encoding='utf-8') as file:
+                if data:
+                    ids = [item['id'] for item in data]
+                    if self._employee_id not in ids:
+                        file.write(
+                            json.dumps(
+                                {
+                                    'id': self._employee_id, 'name': self._name, 'patronymic': self._patronymic,
+                                    'surname': self._surname, 'birthday': self._birthday, 'phone': self._phone_number,
+                                    'department': self._department_id, 'wages': self._wages
+                                },
+                                ensure_ascii=True) + "\n"
+                        )
+                    else:
+                        raise Exception('Такой ID уже существует')
+        else:
+            with open('employees.json', 'a', encoding='utf-8') as file:
+                data.append(
+                    {
+                            'id': self._employee_id, 'name': self._name, 'patronymic': self._patronymic,
+                            'surname': self._surname, 'birthday': self._birthday, 'phone': self._phone_number,
+                            'department': self._department_id, 'wages': self._wages
+                    }
+                )
+                for item in data:
+                    file.write(json.dumps(item, ensure_ascii=True) + "\n")
 
 if __name__ == '__main__':
     newbie = Employees('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641, 1, 2, 10000)
-    print(newbie)
+    newbie.save()

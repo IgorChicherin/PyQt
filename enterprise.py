@@ -1,8 +1,6 @@
 import json
 import os
 
-from employees import Employees
-
 
 class Enterpise:
     def __init__(self, org_id, name, adress, inn, email, phone_number):
@@ -18,6 +16,7 @@ class Enterpise:
             self._email = email
         if self._check(phone_number, 'phone'):
             self._phone_number = phone_number
+        self._employees = list()
 
     def __str__(self):
         return 'Название организации: %s \n' \
@@ -29,8 +28,6 @@ class Enterpise:
     @property
     def org_id(self):
         return self._org_id
-
-    # TODO Сделать сеттер для org_id
 
     @property
     def name(self):
@@ -72,7 +69,6 @@ class Enterpise:
     def phone_number(self):
         return self._phone_number
 
-
     @phone_number.setter
     def phone_number(self, value):
         if self._check(value, 'phone'):
@@ -110,7 +106,7 @@ class Enterpise:
                 raise Exception('Телефон должен содержать 11 цифр')
         return True
 
-    def write(self):
+    def save(self):
         data = list()
         if os.path.exists('enterprises.json'):
             with open('enterprises.json', 'r', encoding='utf-8') as file:
@@ -124,28 +120,42 @@ class Enterpise:
                             json.dumps(
                                 {
                                     'id': self._org_id, 'name': self._name, 'adress': self.adress, 'inn': self._inn,
-                                    'email': self._email, 'phone': self._phone_number
+                                    'email': self._email, 'phone': self._phone_number,'employee_id': self._employees
                                 },
                                 ensure_ascii=True) + "\n"
-                            )
+                        )
                     else:
                         raise Exception('Такой ID уже существует')
-                else:
-                    with open('enterprises.json', 'a', encoding='utf-8') as file:
-                        data.append(
-                            {
-                                'id': self._org_id, 'name': self._name, 'adress': self.adress, 'inn': self._inn,
-                                'email': self._email, 'phone': self._phone_number
-                            }
-                        )
-                        for item in data:
-                            file.write(json.dumps(item, ensure_ascii=True) + "\n")
+        else:
+            with open('enterprises.json', 'a', encoding='utf-8') as file:
+                data.append(
+                    {
+                        'id': self._org_id, 'name': self._name, 'adress': self.adress, 'inn': self._inn,
+                        'email': self._email, 'phone': self._phone_number, 'employee_id': self._employees
+                    }
+                )
+                for item in data:
+                    file.write(json.dumps(item, ensure_ascii=True) + "\n")
 
-    # TODO сделать добавление сотрудника
-    def add_employee(self, *args):
-        pass
+    def add_employee(self, employee_id):
+        data = list()
+        ent_data = list()
+        with open('employees.json', 'r', encoding='utf-8') as file:
+            for item in file:
+                data.append(json.loads(item))
+        ids = [item['id'] for item in data]
+        if employee_id in ids:
+            for employee in data:
+                if employee['id'] == employee_id:
+                    self._employees.append(employee['id'])
+                    self.save()
+        else:
+            raise ('Пользователя с таким ID нет')
+
+
 
 
 if __name__ == '__main__':
     ark = Enterpise(11, 'ARK Group', 'some address', 12345678912, 'some@email', 89281546474)
-    ark.write()
+    ark.add_employee(2)
+    # ark.save()
