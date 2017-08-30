@@ -16,7 +16,6 @@ class Enterpise(Base):
     inn = Column(Integer)
     email = Column(String)
     phone_number = Column(String)
-    # employees = Column(Text)
 
 
     def __init__(self, name, adress, inn, email, phone_number):
@@ -31,7 +30,6 @@ class Enterpise(Base):
             self.email = email
         if self._check(phone_number, 'phone'):
             self.phone_number = phone_number
-        # self.employees = list()
 
     def __repr__(self, name, adress, inn, email, phone_number):
         return '<Company name={} adress={} inn={} email={} phone_number={}'.format(self.name, self.adress, self.inn,
