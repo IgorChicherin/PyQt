@@ -1,11 +1,28 @@
 import json
-import os
+
+from sqlalchemy import create_engine
+from sqlalchemy import Table, Column, Integer, String, MetaData
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+engine = create_engine('sqlite:///:memory:', echo=True)
+Base = declarative_base()
+# metadata = MetaData()
+# enterprise_table = Table('entrprise', metadata, Column('org_id', )
+# )
 
 
-class Enterpise:
-    def __init__(self, org_id, name, adress, inn, email, phone_number):
-        if self._check(org_id, 'id'):
-            self._org_id = org_id
+class Enterpise(Base):
+    __tablename__ = 'enterprise'
+
+    org_id = Column(Integer, primary_key=True)
+    name = Column(String)
+    adress = Column(String)
+    INN = Column(Integer)
+    email = Column(String)
+    phone_number = Column(String)
+
+    def __init__(self, name, adress, inn, email, phone_number):
         if self._check(name, 'name'):
             self._name = name
         if self._check(adress, 'adress'):
@@ -23,11 +40,7 @@ class Enterpise:
                'Адрес: %s \n' \
                'ИНН: %s \n' \
                'email: %s \n' \
-               'Телефон: %s' % (self.name, self.adress, self.INN, self.email, self.phone_number)
-
-    @property
-    def org_id(self):
-        return self._org_id
+               'Телефон: %s' % (self._name, self._adress, self._inn, self._email, self._phone_number)
 
     @property
     def name(self):
@@ -107,35 +120,7 @@ class Enterpise:
         return True
 
     def save(self):
-        data = list()
-        if os.path.exists('enterprises.json'):
-            with open('enterprises.json', 'r', encoding='utf-8') as file:
-                for item in file:
-                    data.append(json.loads(item))
-            with open('enterprises.json', 'a', encoding='utf-8') as file:
-                if data:
-                    ids = [item['id'] for item in data]
-                    if self._org_id not in ids:
-                        file.write(
-                            json.dumps(
-                                {
-                                    'id': self._org_id, 'name': self._name, 'adress': self.adress, 'inn': self._inn,
-                                    'email': self._email, 'phone': self._phone_number,'employee_id': self._employees
-                                },
-                                ensure_ascii=True) + "\n"
-                        )
-                    else:
-                        raise Exception('Такой ID уже существует')
-        else:
-            with open('enterprises.json', 'a', encoding='utf-8') as file:
-                data.append(
-                    {
-                        'id': self._org_id, 'name': self._name, 'adress': self.adress, 'inn': self._inn,
-                        'email': self._email, 'phone': self._phone_number, 'employee_id': self._employees
-                    }
-                )
-                for item in data:
-                    file.write(json.dumps(item, ensure_ascii=True) + "\n")
+        pass
 
     def add_employee(self, employee_id):
         data = list()
@@ -153,9 +138,15 @@ class Enterpise:
             raise ('Пользователя с таким ID нет')
 
 
-
-
 if __name__ == '__main__':
-    ark = Enterpise(11, 'ARK Group', 'some address', 12345678912, 'some@email', 89281546474)
-    ark.add_employee(2)
+    ark = Enterpise('ARK Group', 'some address', 12345678912, 'some@email', 89281546474)
+    Sesson = sessionmaker(bind=engine)
+    session = Sesson()
+    session.add(ark)
+    session.commit()
+    # q = session.query(Enterpise).filter_by(org_id='1').first()
+    # print(q)
+    # ark.INN = 12348617893
+    # print(ark.INN)
+    # ark.add_employee(2)
     # ark.save()
