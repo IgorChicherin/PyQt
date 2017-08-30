@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 engine = create_engine('sqlite:///:memory:', echo=True)
 Base = declarative_base()
 
+#TODO Foregin Key for Employees
 class Enterpise(Base):
 
     __tablename__ = 'enterprise'
