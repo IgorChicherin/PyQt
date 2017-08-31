@@ -21,7 +21,7 @@ class Enterpise(Base):
     phone_number = Column(String)
 
     def __init__(self, name, adress, inn, email, phone_number):
-        Base.metadata.create_all(engine)
+        # Base.metadata.create_all(engine)
         if self._check(name, 'name'):
             self.name = name
         if self._check(adress, 'adress'):
@@ -79,9 +79,10 @@ class People(Base):
     surname = Column(String)
     birthday = Column(Date)
     phone_number = Column(Integer)
+    # employee = relationship('Employee', back_populates='people')
 
     def __init__(self, name, patronymic, surname, birthday, phone_number):
-        Base.metadata.create_all(engine)
+        # Base.metadata.create_all(engine)
         if self._check(name, 'name'):
             self.name = name
         if self._check(patronymic, 'patronymic'):
@@ -127,10 +128,10 @@ class Employee(Base):
     department_id = Column(Integer)
     people_id = Column(Integer, ForeignKey('people.people_id'))
     wages = Column(Integer)
-    # People = relationship('People', back_populates='Employees')
+    # People = relationship('People', back_populates='qweqwe')
 
     def __init__(self, people_id, department_id, wages):
-        Base.metadata.create_all(engine)
+        # Base.metadata.create_all(engine)
         if self._check(people_id):
             self.people_id = people_id
         if self._check(department_id):
