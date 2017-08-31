@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -32,9 +32,9 @@ class Enterpise(Base):
         if self._check(phone_number, 'phone'):
             self.phone_number = phone_number
 
-    def __repr__(self, name, adress, inn, email, phone_number):
-        return '<Company name={} adress={} inn={} email={} phone_number={}'.format(self.name, self.adress, self.inn,
-                                                                                   self.email, self.phone_number)
+    def __repr__(self):
+        return '<Company name={} adress={} inn={} email={} ' \
+               'phone_number={}>'.format(self.name, self.adress, self.inn, self.email, self.phone_number)
 
     def _check(self, value, value_type):
         '''
@@ -70,10 +70,14 @@ class Enterpise(Base):
 
 
 if __name__ == '__main__':
-    ark = Enterpise(name='ARK Group', adress='some address', inn=12345678912, email='some@email', phone_number=89281546474)
+    ark = Enterpise(name='ARK Group',
+                    adress='some address',
+                    inn=12345678912,
+                    email='some@email',
+                    phone_number=89281546474)
     Sesson = sessionmaker(bind=engine)
     session = Sesson()
     session.add(ark)
     session.commit()
-
+    print(ark)
 
