@@ -1,6 +1,5 @@
-from enterprise import Enterpise
-from people import People
-from employees import Employees
+from enterprise import Enterpise, People, Employees
+
 
 
 ark = Enterpise(1, 'ARK Group', 'some address', 12345678912, 'some@email', 89281546474)
