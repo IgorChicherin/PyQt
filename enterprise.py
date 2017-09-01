@@ -59,13 +59,14 @@ class People(Base):
 
 
 class Employee(Base):
+    #TODO не получилось сделать relationship, в интернете ничего не нашел по этому поводу
     __tablename__ = 'employees'
 
     employee_id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
     department_id = Column(Integer)
     people_id = Column(Integer, ForeignKey('people.people_id'))
     wages = Column(Integer)
-    # People = relationship('People', back_populates='qweqwe')
+    # people = relationship('People', back_populates='employee')
 
     def __init__(self, people_id, department_id, wages):
         # Base.metadata.create_all(engine)
@@ -79,7 +80,9 @@ class Employee(Base):
 
 
 if __name__ == '__main__':
-
+    Base.metadata.create_all(engine)
+    Sesson = sessionmaker(bind=engine)
+    session = Sesson()
     ark = Enterpise(name='ARK Group',
                     adress='some address',
                     inn=12345678912,
@@ -87,8 +90,6 @@ if __name__ == '__main__':
                     phone_number=89281546474)
     ppl = People('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641)
     emp = Employee(1, 1, 1000)
-    Sesson = sessionmaker(bind=engine)
-    session = Sesson()
     session.add_all([ark, ppl, emp])
     session.commit()
     # print(ark)
