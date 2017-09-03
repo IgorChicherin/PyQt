@@ -13,16 +13,14 @@ Base = declarative_base()
 class Enterpise(Base):
     __tablename__ = 'enterprise'
 
-    org_id = Column(Integer, primary_key=True)
+    org_id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
     adress = Column(String)
     inn = Column(Integer)
     email = Column(String)
     phone_number = Column(String)
 
-
     def __init__(self, name, adress, inn, email, phone_number):
-        # Base.metadata.create_all(engine)
         self.name = name
         self.adress = adress
         self.inn = inn
@@ -34,49 +32,35 @@ class Enterpise(Base):
                'phone_number={}>'.format(self.name, self.adress, self.inn, self.email, self.phone_number)
 
 
-class People(Base):
-    __tablename__ = 'people'
+class Employee(Base):
+    __tablename__ = 'employees'
 
-    people_id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
+    employee_id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
     name = Column(String)
     patronymic = Column(String)
     surname = Column(String)
     birthday = Column(Date)
     phone_number = Column(Integer)
-    # employee = relationship('Employee', back_populates='people')
+    department_id = Column(Integer)
+    org_id = Column(Integer, ForeignKey('enterprise.org_id'))
+    wages = Column(Integer)
+    # org = relationship('Enterpise', back_populates='name')
 
-    def __init__(self, name, patronymic, surname, birthday, phone_number):
-        # Base.metadata.create_all(engine)
+    def __init__(self, name, patronymic, surname, birthday, phone_number, org_id, department_id, wages):
         self.name = name
         self.patronymic = patronymic
         self.surname = surname
         self.birthday = datetime.strptime(birthday, '%d.%m.%Y')
         self.phone_number = phone_number
-
-    def __repr__(self):
-        return '<People surname=%s  name=%s patronymic=%s birthday=%s ' \
-               'phone_number=%s>' % (self.surname, self.name, self.patronymic, self.birthday, self.phone_number)
-
-
-class Employee(Base):
-    #TODO не получилось сделать relationship, в интернете ничего не нашел по этому поводу
-    __tablename__ = 'employees'
-
-    employee_id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
-    department_id = Column(Integer)
-    people_id = Column(Integer, ForeignKey('people.people_id'))
-    wages = Column(Integer)
-    # people = relationship('People', back_populates='employee')
-
-    def __init__(self, people_id, department_id, wages):
-        # Base.metadata.create_all(engine)
-        self.people_id = people_id
+        self.org_id = org_id
         self.department_id = department_id
         self.wages = wages
 
     def __repr__(self):
-        return '<Employee people_id=%s employee_id=%s ' \
-               'department_id=%s wages=%s' % (self.people_id, self.employee_id, self.department_id, self.wages)
+        return '<Employee employee_id=%s name=%s patronymic=%s surname=% birthday=%s phone_number=%s' \
+               'org_id=%s department_id=%s wages=%s' % (self.employee_id, self.name, self.patronymic, self.surname,
+                                                        self.birthday, self.phone_number, self.org_id,
+                                                        self.department_id, self.wages)
 
 
 if __name__ == '__main__':
@@ -88,8 +72,7 @@ if __name__ == '__main__':
                     inn=12345678912,
                     email='some@email',
                     phone_number=89281546474)
-    ppl = People('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641)
-    emp = Employee(1, 1, 1000)
-    session.add_all([ark, ppl, emp])
+    emp = Employee('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641, 1, 1, 1000)
+    session.add_all([ark, emp])
     session.commit()
     # print(ark)
