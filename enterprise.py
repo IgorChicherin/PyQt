@@ -5,13 +5,33 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Date
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
-engine = create_engine('sqlite:///enterprise.db', echo=True)
 Base = declarative_base()
 
 
-# TODO Foregin Key for Employees
-class Enterpise(Base):
-    __tablename__ = 'enterprise'
+class Enterprise:
+    def __init__(self):
+        self.engine = create_engine('sqlite:///enterprise.db', echo=True)
+        self._session = self._create_session()
+        self._create_base()
+
+    def _create_session(self):
+        Sesson = sessionmaker(bind=self.engine)
+        session = Sesson()
+        return session
+
+    # TODO доделать метод
+    def _create_base(self):
+        Base.metadata.create_all(self.engine)
+
+    def _clean_table(self, cls, session):
+        models = session.query(cls).order_by(cls.id)
+        for model in models:
+            session.delete(model)
+        session.commit()
+
+
+class Company(Base):
+    __tablename__ = 'company'
 
     org_id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
@@ -42,8 +62,9 @@ class Employee(Base):
     birthday = Column(Date)
     phone_number = Column(Integer)
     department_id = Column(Integer)
-    org_id = Column(Integer, ForeignKey('enterprise.org_id'))
+    org_id = Column(Integer, ForeignKey('Company.org_id'))
     wages = Column(Integer)
+
     # org = relationship('Enterpise', back_populates='name')
 
     def __init__(self, name, patronymic, surname, birthday, phone_number, org_id, department_id, wages):
@@ -64,15 +85,12 @@ class Employee(Base):
 
 
 if __name__ == '__main__':
-    Base.metadata.create_all(engine)
-    Sesson = sessionmaker(bind=engine)
-    session = Sesson()
-    ark = Enterpise(name='ARK Group',
-                    adress='some address',
-                    inn=12345678912,
-                    email='some@email',
-                    phone_number=89281546474)
+    ark = Company(name='ARK Group',
+                  adress='some address',
+                  inn=12345678912,
+                  email='some@email',
+                  phone_number=89281546474)
     emp = Employee('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641, 1, 1, 1000)
-    session.add_all([ark, emp])
-    session.commit()
+    # session.add_all([ark, emp])
+    # session.commit()
     # print(ark)
