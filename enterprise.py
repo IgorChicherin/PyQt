@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, ForeignKey, Date
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
 
@@ -57,14 +57,14 @@ class Employee(Base):
 
     def __repr__(self):
         return '<Employee employee_id=%s name=%s patronymic=%s surname=%s birthday=%s phone_number=%s' \
-               'org_id=%s department_id=%s wages=%s' % (self.id, self.name, self.patronymic, self.surname,
+               'org_id=%s department_id=%s wages=%s>' % (self.id, self.name, self.patronymic, self.surname,
                                                         self.birthday, self.phone_number, self.org_id,
                                                         self.department_id, self.wages)
 
 
 class Enterprise:
-    def __init__(self):
-        self.engine = create_engine('sqlite:///enterprise.db')
+    def __init__(self, name):
+        self.engine = create_engine('sqlite:///{}.db'.format(name))
         self._session = self._create_session()
         self._create_base()
 
