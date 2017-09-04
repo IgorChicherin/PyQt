@@ -1,27 +1,23 @@
-from enterprise import Enterpise, People, Employee
+from enterprise import Enterprise, Employee, Company
 
-from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 
 from peewee_library import Author, Book, Journal, BookAuthor, JournalAuthor, db
 
 # SQLAlchemy
-engine = create_engine('sqlite:///enterprise.db', echo=True)
 Base = declarative_base()
-
-Base.metadata.create_all(engine)
-Sesson = sessionmaker(bind=engine)
-session = Sesson()
-ark = Enterpise(name='ARK Group',
-                adress='some address',
-                inn=12345678912,
-                email='some@email',
-                phone_number=89281546474)
-ppl = People('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641)
-emp = Employee(1, 1, 1000)
-session.add_all([ark, ppl, emp])
-session.commit()
+ark = Company(name='ARK Group',
+              adress='some address',
+              inn=12345678912,
+              email='some@email',
+              phone_number=89281546474)
+emp = Employee('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641, 1, 1, 1000)
+ark_comp = Enterprise()
+ark_comp.add(ark)
+ark_comp.add(emp)
+empl = ark_comp.get(Employee, 1)
+empl.name = 'asdasd'
+ark_comp.update(empl)
 
 # Peewee
 db.create_tables([Author, Book, Journal, BookAuthor, JournalAuthor])
