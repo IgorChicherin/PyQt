@@ -92,8 +92,12 @@ class Enterprise:
         return obj
 
     def add(self, new_obj):
-        self._session.add(new_obj)
-        self._session.commit()
+        try:
+            self._session.add(new_obj)
+            self._session.commit()
+            return True
+        except Exception:
+            return False
 
     def update(self, obj):
         self._session.commit()

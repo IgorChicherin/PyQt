@@ -12,7 +12,7 @@ ark = Company(name='ARK Group',
               email='some@email',
               phone_number=89281546474)
 emp = Employee('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641, 1, 1, 1000)
-ark_comp = Enterprise()
+ark_comp = Enterprise('enterprise')
 ark_comp.add(ark)
 ark_comp.add(emp)
 empl = ark_comp.get(Employee, 1)

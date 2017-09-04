@@ -2,11 +2,9 @@ import os
 from sqlite3 import connect
 from unittest import TestCase
 
-from enterprise import Company, Employee, Enterprise
+from sqlalchemy.orm import Session
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.ext.declarative import declarative_base
+from enterprise import Company, Employee, Enterprise
 
 
 class TestCompany(TestCase):
@@ -44,34 +42,56 @@ class TestEnterprise(TestCase):
         self._ent = Enterprise('test_enterprise')
         self._ent.add(Employee('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641, 1, 1, 1000))
         self._ent.add(Company(name='ARK Group',
-                        adress='some address',
-                        inn=12345678912,
-                        email='some@email',
-                        phone_number=89281546474))
-
+                              adress='some address',
+                              inn=12345678912,
+                              email='some@email',
+                              phone_number=89281546474))
 
     def test_create_session(self):
         self.assertIsInstance(Enterprise('test_enterprise')._session, Session)
 
     def test_create_base(self):
-        pass
+        self.assertTrue(os.path.exists('test_enterprise.db'))
 
     def test_clean_table(self):
+        # Не знаю правильно ли это... может можно как-то проще
+        session = self._ent._create_session()
+        self._ent._clean_table(Employee, session)
+        self._ent._clean_table(Company, session)
         with connect('test_enterprise.db') as conn:
             cur = conn.cursor()
-            query = 'SELECT * FROM company ORDER BY id'
-            result = cur.execute(query)
-            print(str(result))
-
+            company_query = 'SELECT * FROM company ORDER BY id'
+            company_result = cur.execute(company_query).fetchall()
+            employee_query = 'SELECT * FROM employees ORDER BY org_id'
+            employee_result = cur.execute(employee_query).fetchall()
+        self.assertEqual(len(company_result), 0)
+        self.assertEqual(len(employee_result), 0)
 
     def test_get(self):
-        pass
+        with connect('test_enterprise.db') as conn:
+            cur = conn.cursor()
+            company_query = 'SELECT name FROM company WHERE id = 1'
+            company_result = cur.execute(company_query).fetchone()
+            employee_query = 'SELECT name FROM employees WHERE org_id = 1'
+            employee_result = cur.execute(employee_query).fetchone()
+        self.assertEqual(self._ent.get(Company, 1).name, company_result[0])
+        self.assertEqual(self._ent.get(Employee, 1).name, employee_result[0])
 
     def test_get_all(self):
-        pass
+        cls_result = list()
+        for company in self._ent.get_all(Company):
+            cls_result.append([company.id, company.name, company.adress, company.inn, company.email,
+                               company.phone_number])
+        q_result = list()
+        with connect('test_enterprise.db') as conn:
+            cur = conn.cursor()
+            q = 'SELECT * FROM company'
+        for company in cur.execute(q).fetchall():
+            q_result.append([company[0], company[1], company[2], company[3], company[4], company[5]])
+        self.assertEqual(cls_result, q_result)
 
     def test_add(self):
-        pass
+        self.assertTrue(self._ent.add(Employee('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641, 1, 1, 1000)))
 
     def test_update(self):
         pass
