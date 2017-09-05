@@ -1,0 +1,13 @@
+Модуль ''ex''
+
+Использование ''upper()'', ''capitalize()''
+
+Это пример текстового файла в формате txt.
+
+Теперь используем функцию :
+
+>>> 'hello world'.upper()
+HELLO WORLD
+
+>>> 'unittest supports skipping individual test methods and even whole classes of tests'.capitalize()
+Unittest supports skipping individual test methods and even whole classes of tests
