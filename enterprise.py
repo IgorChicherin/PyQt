@@ -62,6 +62,12 @@ class Employee(Base):
                                                         self.department_id, self.wages)
 
 
+class ObjectNotInBase(Exception):
+
+    def __str__(self):
+        return 'Такой объект не принадлежит к базе'
+
+
 class Enterprise:
     def __init__(self, name):
         self.engine = create_engine('sqlite:///{}.db'.format(name))
@@ -85,7 +91,10 @@ class Enterprise:
         session.commit()
 
     def get(self, cls, id):
-        return self._session.query(cls).get(id)
+        if cls in (Employee, Company):
+            return self._session.query(cls).get(id)
+        else:
+            raise ObjectNotInBase
 
     def get_all(self, cls):
         obj = self._session.query(cls).order_by(cls.id)
@@ -102,6 +111,7 @@ class Enterprise:
     def update(self, obj):
         self._session.commit()
 
+
     def delete(self, obj):
         self._session.delete(obj)
         self._session.commit()
@@ -116,7 +126,7 @@ if __name__ == '__main__':
                   email='some@email',
                   phone_number=89281546474)
     emp = Employee('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641, 1, 1, 1000)
-    ark_comp = Enterprise()
+    ark_comp = Enterprise('enterprise')
     ark_comp.add(ark)
     ark_comp.add(emp)
     empl = ark_comp.get(Employee, 1)

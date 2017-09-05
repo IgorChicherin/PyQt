@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from sqlalchemy.orm import Session
 
-from enterprise import Company, Employee, Enterprise
+from enterprise import Company, Employee, Enterprise, ObjectNotInBase
 
 
 class TestCompany(TestCase):
@@ -76,6 +76,8 @@ class TestEnterprise(TestCase):
             employee_result = cur.execute(employee_query).fetchone()
         self.assertEqual(self._ent.get(Company, 1).name, company_result[0])
         self.assertEqual(self._ent.get(Employee, 1).name, employee_result[0])
+        with self.assertRaises(ObjectNotInBase):
+            self._ent.get(Enterprise, 4)
 
     def test_get_all(self):
         cls_result = list()
@@ -94,13 +96,18 @@ class TestEnterprise(TestCase):
         self.assertTrue(self._ent.add(Employee('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641, 1, 1, 1000)))
 
     def test_update(self):
-        pass
+        emp = self._ent.get(Employee, 1)
+        emp.name = '23123'
+        self._ent.update(emp)
+        self.assertTrue(self._ent.get(Employee, 1).name == '23123')
+
+
 
     def test_delete(self):
-        pass
-
-    def test_del(self):
-        pass
+        emp = self._ent.get(Employee, 1)
+        self._ent.delete(emp)
+        self.assertIsNone(self._ent.get(Employee, 1))
 
     def tearDown(self):
         os.remove('test_enterprise.db')
+
