@@ -135,14 +135,30 @@ class Enterprise:
                 del result_dict['id']
                 json_res.append(result_dict)
             with open(file_name, 'w', encoding='utf-8') as file:
-
-                json.dump(json_res, file)
+                for res_item in json_res:
+                    line = json.dumps(res_item) + '\n'
+                    file.write(line)
+                # json.dump(json_res, file)
 
         t = threading.Thread(target=dump_item)
         t.start()
 
-    def load(self):
-        pass
+    def load(self, cls, file_name):
+
+        def load_items():
+            res = list()
+            with open(file_name, 'r', encoding='utf-8') as file:
+                for line in file:
+                    res.append(json.loads(line))
+            self._clean_table(cls, self._session)
+            for item in res:
+                new_obj = cls(**item)
+                self._session.add(new_obj)
+                self._session.commit()
+
+        t = threading.Thread(target=load_items)
+        t.start()
+        t.join()
 
 
 if __name__ == '__main__':
@@ -151,11 +167,18 @@ if __name__ == '__main__':
                   inn=12345678912,
                   email='some@email',
                   phone_number=89281546474)
+    other = Company(name='Other Group',
+                  adress='other address',
+                  inn=12345678912,
+                  email='other@email',
+                  phone_number=89281546474)
     emp = Employee('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641, 1, 1, 1000)
     ark_comp = Enterprise('enterprise')
     ark_comp.add(ark)
+    ark_comp.add(other)
     ark_comp.add(emp)
     ark_comp.dump(Company, 'company.json')
+    ark_comp.load(Company, 'company.json')
     # empl = ark_comp.get(Employee, 1)
     # empl.name = 'asdasd'
     # ark_comp.update(empl)
