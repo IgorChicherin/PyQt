@@ -1,5 +1,6 @@
 import json
 import threading
+import pickle
 
 from datetime import datetime
 from socketserver import BaseRequestHandler, TCPServer
@@ -13,19 +14,24 @@ from sqlalchemy.orm import sessionmaker
 class CompanyTCPHandler(BaseRequestHandler):
 
     def handle(self):
+
+        def server_auth():
+            pass
+
         self.data = self.request.recv(1024)
-        if self.data == b'add':
-            ark_comp = Enterprise('enterprise')
-            test = Company(name='Test Group',
-                          adress='Test address',
-                          inn=12345678912,
-                          email='Test@email',
-                          phone_number=89281546474)
-            ark_comp.add(test)
-            self.request.sendall(bytes('OK', 'utf-8'))
-            print('ok')
-
-
+        self.msg = pickle.loads(self.data)
+        ent = Enterprise('enterprise')
+        if self.msg['command'] == 'add':
+            print("Получил команду {} с параметрами {}".format(self.msg['command'], self.msg))
+            del self.msg['command']
+            ent.add(Company(**self.msg))
+            self.request.sendall(bytes('Done', 'utf-8'))
+        elif self.msg['command'] == 'get':
+            print("Получил команду {} с параметрами {}".format(self.msg['command'], self.msg))
+            del self.msg['command']
+            #TODO как превратить значение словаря в класс???
+            ent.get(**self.msg)
+            self.request.sendall(bytes('Done', 'utf-8'))
 
 Base = declarative_base()
 
@@ -97,7 +103,7 @@ class Enterprise:
     def __init__(self, name):
         self.engine = create_engine('sqlite:///{}.db?check_same_thread=False'.format(name))
         self._session = self._create_session()
-        self._create_base()
+        # self._create_base()
 
     def _create_session(self):
         Sesson = sessionmaker(bind=self.engine)
