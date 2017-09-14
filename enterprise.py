@@ -2,11 +2,30 @@ import json
 import threading
 
 from datetime import datetime
+from socketserver import BaseRequestHandler, TCPServer
 
 from sqlalchemy import Column, Integer, String, ForeignKey, Date
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+
+
+class CompanyTCPHandler(BaseRequestHandler):
+
+    def handle(self):
+        self.data = self.request.recv(1024)
+        if self.data == b'add':
+            ark_comp = Enterprise('enterprise')
+            test = Company(name='Test Group',
+                          adress='Test address',
+                          inn=12345678912,
+                          email='Test@email',
+                          phone_number=89281546474)
+            ark_comp.add(test)
+            self.request.sendall(bytes('OK', 'utf-8'))
+            print('ok')
+
+
 
 Base = declarative_base()
 
@@ -138,7 +157,6 @@ class Enterprise:
                 for res_item in json_res:
                     line = json.dumps(res_item) + '\n'
                     file.write(line)
-                # json.dump(json_res, file)
 
         t = threading.Thread(target=dump_item)
         t.start()
@@ -160,25 +178,32 @@ class Enterprise:
         t.start()
         t.join()
 
+    def server_mode(self):
+        HOST, PORT = 'localhost', 9000
+        server = TCPServer((HOST, PORT), CompanyTCPHandler)
+        server.serve_forever()
+
 
 if __name__ == '__main__':
-    ark = Company(name='ARK Group',
-                  adress='some address',
-                  inn=12345678912,
-                  email='some@email',
-                  phone_number=89281546474)
-    other = Company(name='Other Group',
-                  adress='other address',
-                  inn=12345678912,
-                  email='other@email',
-                  phone_number=89281546474)
-    emp = Employee('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641, 1, 1, 1000)
     ark_comp = Enterprise('enterprise')
-    ark_comp.add(ark)
-    ark_comp.add(other)
-    ark_comp.add(emp)
-    ark_comp.dump(Company, 'company.json')
-    ark_comp.load(Company, 'company.json')
+    ark_comp.server_mode()
+    # ark = Company(name='ARK Group',
+    #               adress='some address',
+    #               inn=12345678912,
+    #               email='some@email',
+    #               phone_number=89281546474)
+    # other = Company(name='Other Group',
+    #                 adress='other address',
+    #                 inn=12345678912,
+    #                 email='other@email',
+    #                 phone_number=89281546474)
+    # emp = Employee('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641, 1, 1, 1000)
+    # ark_comp = Enterprise('enterprise')
+    # ark_comp.add(ark)
+    # ark_comp.add(other)
+    # ark_comp.add(emp)
+    # ark_comp.dump(Company, 'company.json')
+    # ark_comp.load(Company, 'company.json')
     # empl = ark_comp.get(Employee, 1)
     # empl.name = 'asdasd'
     # ark_comp.update(empl)
