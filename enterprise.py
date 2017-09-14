@@ -1,3 +1,6 @@
+import json
+import threading
+
 from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, ForeignKey, Date
@@ -24,6 +27,10 @@ class Company(Base):
         self.inn = inn
         self.email = email
         self.phone_number = phone_number
+
+    def __str__(self):
+        return '<Company name={} adress={} inn={} email={} ' \
+               'phone_number={}>'.format(self.name, self.adress, self.inn, self.email, self.phone_number)
 
     def __repr__(self):
         return '<Company name={} adress={} inn={} email={} ' \
@@ -58,19 +65,18 @@ class Employee(Base):
     def __repr__(self):
         return '<Employee employee_id=%s name=%s patronymic=%s surname=%s birthday=%s phone_number=%s' \
                'org_id=%s department_id=%s wages=%s>' % (self.id, self.name, self.patronymic, self.surname,
-                                                        self.birthday, self.phone_number, self.org_id,
-                                                        self.department_id, self.wages)
+                                                         self.birthday, self.phone_number, self.org_id,
+                                                         self.department_id, self.wages)
 
 
 class ObjectNotInBase(Exception):
-
     def __str__(self):
         return 'Такой объект не принадлежит к базе'
 
 
 class Enterprise:
     def __init__(self, name):
-        self.engine = create_engine('sqlite:///{}.db'.format(name))
+        self.engine = create_engine('sqlite:///{}.db?check_same_thread=False'.format(name))
         self._session = self._create_session()
         self._create_base()
 
@@ -111,13 +117,33 @@ class Enterprise:
     def update(self, obj):
         self._session.commit()
 
-
     def delete(self, obj):
         self._session.delete(obj)
         self._session.commit()
 
     def __del__(self):
         self._session.close()
+
+    def dump(self, cls, file_name):
+
+        def dump_item():
+            results = self.get_all(cls)
+            json_res = list()
+            for result in results:
+                result_dict = result.__dict__.copy()
+                del result_dict['_sa_instance_state']
+                del result_dict['id']
+                json_res.append(result_dict)
+            with open(file_name, 'w', encoding='utf-8') as file:
+
+                json.dump(json_res, file)
+
+        t = threading.Thread(target=dump_item)
+        t.start()
+
+    def load(self):
+        pass
+
 
 if __name__ == '__main__':
     ark = Company(name='ARK Group',
@@ -129,9 +155,10 @@ if __name__ == '__main__':
     ark_comp = Enterprise('enterprise')
     ark_comp.add(ark)
     ark_comp.add(emp)
-    empl = ark_comp.get(Employee, 1)
-    empl.name = 'asdasd'
-    ark_comp.update(empl)
+    ark_comp.dump(Company, 'company.json')
+    # empl = ark_comp.get(Employee, 1)
+    # empl.name = 'asdasd'
+    # ark_comp.update(empl)
     # emp = Employee('Петр', 'Петрович', 'Петров', '31.08.1989', 89284453641, 1, 1, 1000)
     # session.add_all([ark, emp])
     # session.commit()
