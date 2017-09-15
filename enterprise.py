@@ -1,6 +1,8 @@
 import json
 import threading
 import pickle
+import os
+import hmac
 
 from datetime import datetime
 from socketserver import BaseRequestHandler, TCPServer
@@ -14,24 +16,32 @@ from sqlalchemy.orm import sessionmaker
 class CompanyTCPHandler(BaseRequestHandler):
 
     def handle(self):
+        if self.server_auth(bytes('user', 'utf-8')):
+            print('Authenticated')
+            self.data = self.request.recv(1024)
+            self.msg = pickle.loads(self.data)
+            ent = Enterprise('enterprise')
+            if self.msg['command'] == 'add':
+                print("Получил команду {} с параметрами {}".format(self.msg['command'], self.msg))
+                del self.msg['command']
+                ent.add(Company(**self.msg))
+                self.request.sendall(bytes('Done', 'utf-8'))
+            elif self.msg['command'] == 'get':
+                print("Получил команду {} с параметрами {}".format(self.msg['command'], self.msg))
+                del self.msg['command']
+                #TODO как превратить значение словаря в класс???
+                ent.get(**self.msg)
+                self.request.sendall(bytes('Done', 'utf-8'))
+        else:
+            print('Auth error')
 
-        def server_auth():
-            pass
-
-        self.data = self.request.recv(1024)
-        self.msg = pickle.loads(self.data)
-        ent = Enterprise('enterprise')
-        if self.msg['command'] == 'add':
-            print("Получил команду {} с параметрами {}".format(self.msg['command'], self.msg))
-            del self.msg['command']
-            ent.add(Company(**self.msg))
-            self.request.sendall(bytes('Done', 'utf-8'))
-        elif self.msg['command'] == 'get':
-            print("Получил команду {} с параметрами {}".format(self.msg['command'], self.msg))
-            del self.msg['command']
-            #TODO как превратить значение словаря в класс???
-            ent.get(**self.msg)
-            self.request.sendall(bytes('Done', 'utf-8'))
+    def server_auth(self, secret_key):
+        message = os.urandom(32)
+        self.request.send(message)
+        hash = hmac.new(secret_key, message)
+        digest = hash.digest()
+        response = self.request.recv(len(digest))
+        return hmac.compare_digest(digest, response)
 
 Base = declarative_base()
 
