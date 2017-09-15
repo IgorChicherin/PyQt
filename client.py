@@ -1,6 +1,9 @@
 import socket
 import pickle
 import hmac
+import sys
+
+from PyQt5 import QtWidgets, uic
 from enterprise import Company
 
 
@@ -27,14 +30,30 @@ class ClientConnection:
         self.sock.close()
 
 
+class ClientInterface:
+    def __init__(self):
+        self.app = QtWidgets.QApplication(sys.argv)
+        self.window = uic.loadUi('client.ui')
+        self.window.exitButton.clicked.connect(self.app.quit)
+        self.window.runButton.clicked.connect(self.run)
+        self.window.show()
+        sys.exit(self.app.exec_())
+
+    def run(self):
+        if self.window.compradioButton.isChecked():
+            usr = self.window.lineEdit.displayText()
+            if self.window.checkBox.isChecked() and usr:
+                company = {'name': 'ARK Group',
+                           'adress': 'some address',
+                           'inn': 12345678912,
+                           'email': 'some@email',
+                           'phone_number': 89281546474,
+                           'command': 'add'}
+                ClientConnection('localhost', 9000).send_data(company, usr)
+
+
+
+
+
 if __name__ == '__main__':
-    # company = {'name': 'ARK Group',
-    #            'adress': 'some address',
-    #            'inn': 12345678912,
-    #            'email': 'some@email',
-    #            'phone_number': 89281546474,
-    #            'command': 'add'}
-    # print(ClientConnection('localhost', 9000).send_data(company))
-    # ClientConnection('localhost', 9000).client_auth('user')
-    msg = {'command': 'get', 'cls': Company, 'id': 1}
-    ClientConnection('localhost', 9000).send_data(msg, 'user')
+    ClientInterface()
