@@ -17,7 +17,7 @@ class CompanyTCPHandler(BaseRequestHandler):
 
     def handle(self):
         if self.server_auth(bytes('user', 'utf-8')):
-            print('Authenticated')
+            print('User Authenticated')
             self.data = self.request.recv(1024)
             self.msg = pickle.loads(self.data)
             ent = Enterprise('enterprise')
@@ -33,7 +33,8 @@ class CompanyTCPHandler(BaseRequestHandler):
                 ent.get(**self.msg)
                 self.request.sendall(bytes('Done', 'utf-8'))
         else:
-            print('Auth error')
+            self.request.sendall(bytes('You are not our user! Get out here!', 'utf-8'))
+            print('You are not our user! Get out here!')
 
     def server_auth(self, secret_key):
         message = os.urandom(32)
