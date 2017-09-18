@@ -8,15 +8,16 @@ import sys
 from datetime import datetime
 from socketserver import BaseRequestHandler, TCPServer
 from PyQt5 import QtWidgets, uic
+from PyQt5.QtCore import QThread
 
 from sqlalchemy import Column, Integer, String, ForeignKey, Date
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative.api import DeclarativeMeta
 from sqlalchemy.orm import sessionmaker
 
 
 class CompanyTCPHandler(BaseRequestHandler):
-
     def handle(self):
         if self.server_auth(bytes('user', 'utf-8')):
             print('User Authenticated')
@@ -33,15 +34,15 @@ class CompanyTCPHandler(BaseRequestHandler):
                 log_msg = "Получил команду {} с параметрами {}".format(self.msg['command'], self.msg)
                 print(log_msg)
                 del self.msg['command']
-                #TODO как превратить значение словаря в класс???
-                ent.get(**self.msg)
-                self.request.sendall(bytes('Done', 'utf-8'))
+                # TODO как превратить значение словаря в класс???
+                res = ent.get(**self.msg)
+                print(res)
+                # self.request.sendall(bytes(res, 'utf-8'))
             return log_msg
         else:
             self.request.sendall(bytes('You are not our user! Get out here!', 'utf-8'))
             log_msg = 'You are not our user! Get out here!'
             print(log_msg)
-
 
     def server_auth(self, secret_key):
         message = os.urandom(32)
@@ -50,6 +51,7 @@ class CompanyTCPHandler(BaseRequestHandler):
         digest = hash.digest()
         response = self.request.recv(len(digest))
         return hmac.compare_digest(digest, response)
+
 
 Base = declarative_base()
 
@@ -140,7 +142,7 @@ class Enterprise:
         session.commit()
 
     def get(self, cls, id):
-        if cls in (Employee, Company):
+        if isinstance(cls, DeclarativeMeta) or cls in (Company, Employee):
             return self._session.query(cls).get(id)
         else:
             raise ObjectNotInBase
@@ -208,21 +210,23 @@ class Enterprise:
         server.serve_forever()
 
 
-class ServerInterface:
-    #TODO гуя умирают при запуске скорее всего нужна многопоточка
+class ServerInterface(QThread):
+    # TODO гуя умирают при запуске скорее всего нужна многопоточка
     def __init__(self):
+        QThread.__init__(self)
         self.app = QtWidgets.QApplication(sys.argv)
         self.window = uic.loadUi('server.ui')
+        self.company = Enterprise('enterprise')
         self.window.exitButton.clicked.connect(self.app.quit)
-        self.window.runButton.clicked.connect(self.runserver)
+        self.window.runButton.clicked.connect(self.run)
         self.window.show()
         sys.exit(self.app.exec_())
 
-    def runserver(self):
-        company = Enterprise('enterprise')
-        company.server_mode()
+    def run(self):
+        self.company.server_mode()
 
-
+    def __del__(self):
+        self.wait()
 
 
 if __name__ == '__main__':

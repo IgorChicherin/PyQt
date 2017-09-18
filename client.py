@@ -5,7 +5,7 @@ import sys
 
 from PyQt5 import QtWidgets, uic
 from enterprise import Company
-
+from enterprise import Employee
 
 class ClientConnection:
     def __init__(self, host, port):
@@ -30,31 +30,38 @@ class ClientConnection:
         self.sock.close()
 
 
-class ClientInterface:
-    def __init__(self):
-        self.app = QtWidgets.QApplication(sys.argv)
-        self.window = uic.loadUi('client.ui')
-        self.window.exitButton.clicked.connect(self.app.quit)
-        self.window.runButton.clicked.connect(self.run)
-        self.window.add_radioButton.clicked.connect(self.show_panel)
-        self.window.show()
-        sys.exit(self.app.exec_())
+class ClientInterface(QtWidgets.QMainWindow):
+    def __init__(self, parent=None):
+        QtWidgets.QWidget.__init__(self, parent)
+        uic.loadUi('client.ui', self)
+        self.exitButton.clicked.connect(QtWidgets.qApp.quit)
+        self.runButton.clicked.connect(self.run)
+        self.add_radioButton.clicked.connect(self.show_panel)
 
     def run(self):
-        if self.window.compradioButton.isChecked():
-            usr = self.window.lineEdit.displayText()
-            if self.window.add_radioButton.isChecked() and usr:
-                company = {'name': 'ARK Group',
-                           'adress': 'some address',
-                           'inn': 12345678912,
-                           'email': 'some@email',
-                           'phone_number': 89281546474,
+        if self.comp_radioButton.isChecked():
+            usr = self.login_lineEdit.displayText()
+            if self.add_radioButton.isChecked() and usr:
+                company = {'name': self.name_lineEdit.displayText(),
+                           'adress': self.adress_lineEdit.displayText(),
+                           'inn': self.inn_lineEdit.displayText(),
+                           'email': self.email_lineEdit.displayText(),
+                           'phone_number': self.phone_lineEdit.displayText(),
                            'command': 'add'}
                 ClientConnection('localhost', 9000).send_data(company, usr)
+            if self.del_radioButton.isChecked() and usr:
+                payload = {'command': 'get', 'cls': Company}
+                ClientConnection('localhost', 9000).send_data(payload, usr)
 
     def show_panel(self):
-
-        self.window.geometry()
+        self.setGeometry(300, 300, 804, 413)
+        self.exitButton.setGeometry(700, 350, 91, 31)
 
 if __name__ == '__main__':
-    ClientInterface()
+    # app = QtWidgets.QApplication(sys.argv)
+    # ex = ClientInterface()
+    # ex.show()
+    # sys.exit(app.exec_())
+    payload = {'command': 'get', 'cls': Company, 'id': '1'}
+    ClientConnection('localhost', 9000).send_data(payload, 'user')
+
