@@ -3,9 +3,11 @@ import threading
 import pickle
 import os
 import hmac
+import sys
 
 from datetime import datetime
 from socketserver import BaseRequestHandler, TCPServer
+from PyQt5 import QtWidgets, uic
 
 from sqlalchemy import Column, Integer, String, ForeignKey, Date
 from sqlalchemy import create_engine
@@ -22,19 +24,24 @@ class CompanyTCPHandler(BaseRequestHandler):
             self.msg = pickle.loads(self.data)
             ent = Enterprise('enterprise')
             if self.msg['command'] == 'add':
-                print("Получил команду {} с параметрами {}".format(self.msg['command'], self.msg))
+                log_msg = "Получил команду {} с параметрами {}".format(self.msg['command'], self.msg)
+                print(log_msg)
                 del self.msg['command']
                 ent.add(Company(**self.msg))
                 self.request.sendall(bytes('Done', 'utf-8'))
             elif self.msg['command'] == 'get':
-                print("Получил команду {} с параметрами {}".format(self.msg['command'], self.msg))
+                log_msg = "Получил команду {} с параметрами {}".format(self.msg['command'], self.msg)
+                print(log_msg)
                 del self.msg['command']
                 #TODO как превратить значение словаря в класс???
                 ent.get(**self.msg)
                 self.request.sendall(bytes('Done', 'utf-8'))
+            return log_msg
         else:
             self.request.sendall(bytes('You are not our user! Get out here!', 'utf-8'))
-            print('You are not our user! Get out here!')
+            log_msg = 'You are not our user! Get out here!'
+            print(log_msg)
+
 
     def server_auth(self, secret_key):
         message = os.urandom(32)
@@ -201,7 +208,25 @@ class Enterprise:
         server.serve_forever()
 
 
+class ServerInterface:
+    #TODO гуя умирают при запуске скорее всего нужна многопоточка
+    def __init__(self):
+        self.app = QtWidgets.QApplication(sys.argv)
+        self.window = uic.loadUi('server.ui')
+        self.window.exitButton.clicked.connect(self.app.quit)
+        self.window.runButton.clicked.connect(self.runserver)
+        self.window.show()
+        sys.exit(self.app.exec_())
+
+    def runserver(self):
+        company = Enterprise('enterprise')
+        company.server_mode()
+
+
+
+
 if __name__ == '__main__':
+    # ServerInterface()
     ark_comp = Enterprise('enterprise')
     ark_comp.server_mode()
     # ark = Company(name='ARK Group',

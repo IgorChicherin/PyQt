@@ -36,13 +36,14 @@ class ClientInterface:
         self.window = uic.loadUi('client.ui')
         self.window.exitButton.clicked.connect(self.app.quit)
         self.window.runButton.clicked.connect(self.run)
+        self.window.add_radioButton.clicked.connect(self.show_panel)
         self.window.show()
         sys.exit(self.app.exec_())
 
     def run(self):
         if self.window.compradioButton.isChecked():
             usr = self.window.lineEdit.displayText()
-            if self.window.checkBox.isChecked() and usr:
+            if self.window.add_radioButton.isChecked() and usr:
                 company = {'name': 'ARK Group',
                            'adress': 'some address',
                            'inn': 12345678912,
@@ -51,9 +52,9 @@ class ClientInterface:
                            'command': 'add'}
                 ClientConnection('localhost', 9000).send_data(company, usr)
 
+    def show_panel(self):
 
-
-
+        self.window.geometry()
 
 if __name__ == '__main__':
     ClientInterface()
